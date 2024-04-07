@@ -1,13 +1,16 @@
+import { MouseEventHandler, useState } from 'react';
+
 const Content = () => {
+  const [name, setName] = useState('');
   const handleNameChange = () => {
     const names = ['Tom', 'Brandon', 'Bruce', 'Dave', 'Mike'];
     const random = Math.floor(Math.random() * names.length);
-    return names[random];
+    setName(names[random]);
   };
 
   return (
     <main>
-      <p>Hello {handleNameChange()}</p>
+      <p onDoubleClick={handleNameChange}>Hello {name}</p>
     </main>
   );
 };
