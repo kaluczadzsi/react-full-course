@@ -3,7 +3,7 @@ import { GroceryProps } from './groceryProps.types';
 
 const Content = ({ items, handleCheck, handleDelete }: GroceryProps) => {
   return (
-    <main>
+    <>
       {items.length ? (
         <ItemList
           items={items}
@@ -13,7 +13,7 @@ const Content = ({ items, handleCheck, handleDelete }: GroceryProps) => {
       ) : (
         <p style={{ marginTop: '2rem' }}>Your list is empty</p>
       )}
-    </main>
+    </>
   );
 };
 

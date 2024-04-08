@@ -6,33 +6,45 @@ import AddItem from './AddItem';
 import { FormEvent, useEffect, useState } from 'react';
 import { Item } from './groceryProps.types';
 
+const API_URL = 'http://localhost:3500/items';
+
 const App = () => {
   const [items, setItems] = useState<Item[]>([]);
   const [newItem, setNewItem] = useState('');
   const [search, setSearch] = useState('');
+  const [fetchError, setFetchError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const storedItems = localStorage.getItem('shoppinglist');
-    if (storedItems) {
-      setItems(JSON.parse(storedItems));
-    }
+    const fetchItems = async () => {
+      try {
+        const response = await fetch(API_URL);
+        if (!response.ok) throw new Error('Did not receive expected data');
+        const listItems = await response.json();
+        setItems(listItems);
+        setFetchError(null);
+      } catch (err: unknown) {
+        if (err instanceof Error) {
+          setFetchError(err.message);
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchItems();
   }, []);
 
-  const setAndSaveItems = (newItems: Item[]) => {
-    setItems(newItems);
-    localStorage.setItem('shoppinglist', JSON.stringify(newItems));
-  };
-
   const handleCheck = (id: number) => {
-    const listItems = items.map((item) =>
+    const listItems = items.map((item: Item) =>
       item.id === id ? { ...item, checked: !item.checked } : item
     );
-    setAndSaveItems(listItems);
+    setItems(listItems);
   };
 
   const handleDelete = (id: number) => {
-    const listItems = items.filter((item) => item.id !== id);
-    setAndSaveItems(listItems);
+    const listItems = items.filter((item: Item) => item.id !== id);
+    setItems(listItems);
   };
 
   const handleSubmit = (e: FormEvent) => {
@@ -46,7 +58,7 @@ const App = () => {
     const id = items.length ? items[items.length - 1].id + 1 : 1;
     const myNewItem = { id, checked: false, item };
     const listItems = [...items, myNewItem];
-    setAndSaveItems(listItems);
+    setItems(listItems);
   };
 
   return (
@@ -58,13 +70,19 @@ const App = () => {
         handleSubmit={handleSubmit}
       />
       <SearchItem search={search} setSearch={setSearch} />
-      <Content
-        items={items.filter((item) =>
-          item.item.toLowerCase().includes(search.toLowerCase())
+      <main>
+        {isLoading && <p>Loading Items...</p>}
+        {fetchError && <p style={{ color: 'red' }}>{`Error: ${fetchError}`}</p>}
+        {!fetchError && (
+          <Content
+            items={items.filter((item: Item) =>
+              item.item.toLowerCase().includes(search.toLowerCase())
+            )}
+            handleCheck={handleCheck}
+            handleDelete={handleDelete}
+          />
         )}
-        handleCheck={handleCheck}
-        handleDelete={handleDelete}
-      />
+      </main>
       <Footer length={items.length} />
     </div>
   );
