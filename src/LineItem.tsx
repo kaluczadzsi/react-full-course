@@ -9,7 +9,7 @@ type LineItemProps = {
 
 const LineItem = ({ item, handleCheck, handleDelete }: LineItemProps) => {
   return (
-    <li className="item" onChange={() => handleCheck(item.id)} key={item.id}>
+    <li className="item" onChange={() => handleCheck(item.id)}>
       <input
         onChange={() => handleCheck(item.id)}
         type="checkbox"
@@ -25,6 +25,7 @@ const LineItem = ({ item, handleCheck, handleDelete }: LineItemProps) => {
         onClick={() => handleDelete(item.id)}
         role="button"
         tabIndex={0}
+        aria-label={`Delete ${item.item}`}
       />
     </li>
   );
